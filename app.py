@@ -28,21 +28,24 @@ st.set_page_config(
 @st.cache_data
 def load_all_data():
     try:
-        # Memuat setiap file CSV dari folder 'data'
-        # PASTIKAN NAMA FILE CSV SESUAI DENGAN YANG ADA DI FOLDER DATA ANDA!
-        # Jika ada file yang tidak ada, KOMENTARI BARISNYA atau sesuaikan nama file.
-        df_customers = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\customers_dataset.csv")
-        df_geolocation = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\geolocation_dataset.csv")
-        df_order_items = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\order_items_dataset.csv")
-        df_order_payments = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\order_payments_dataset.csv")
-        df_order_reviews = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\order_reviews_dataset.csv")
-        df_orders = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\orders_dataset.csv")
-        df_product_category_name_translation = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\product_category_name_translation.csv")
-        df_products = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\products_dataset.csv")
-        df_sellers = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\sellers_dataset.csv")
-        df_closed_deals = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\closed_deals_dataset.csv") # Tambahan
-        df_marketing_qualified_leads = pd.read_csv("D:\Lomba\SSDC_Dashboard_Project\data\marketing_qualified_leads_dataset.csv") # Tambahan
+        df_customers = pd.read_csv('data/customers_dataset.csv')
+        df_geolocation = pd.read_csv('data/geolocation_dataset.csv')
+        df_order_items = pd.read_csv('data/order_items_dataset.csv')
+        df_order_payments = pd.read_csv('data/order_payments_dataset.csv')
+        df_order_reviews = pd.read_csv('data/order_reviews_dataset.csv')
+        df_orders = pd.read_csv('data/orders_dataset.csv')
+        df_product_category_name_translation = pd.read_csv('data/product_category_name_translation.csv')
+        df_products = pd.read_csv('data/products_dataset.csv')
+        df_sellers = pd.read_csv('data/sellers_dataset.csv')
+        df_closed_deals = pd.read_csv('data/closed_deals_dataset.csv')
+        df_marketing_qualified_leads = pd.read_csv('data/marketing_qualified_leads_dataset.csv')
 
+        # ... (kode penggabungan data lainnya)
+
+    except FileNotFoundError as e:
+        st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
+        st.stop()
+        
         # --- Gabungan Data Utama untuk Analisis (Berdasarkan ERD Anda) ---
         # Mulai dengan tabel orders sebagai pusat
         df_merged = df_orders.copy()
