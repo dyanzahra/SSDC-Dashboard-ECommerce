@@ -28,19 +28,17 @@ st.set_page_config(
 @st.cache_data
 def load_all_data():
     try:
-        df_customers = pd.read_csv('data/customers_dataset.csv')
-        df_geolocation = pd.read_csv('data/geolocation_dataset.csv')
-        df_order_items = pd.read_csv('data/order_items_dataset.csv')
-        df_order_payments = pd.read_csv('data/order_payments_dataset.csv')
-        df_order_reviews = pd.read_csv('data/order_reviews_dataset.csv')
-        df_orders = pd.read_csv('data/orders_dataset.csv')
-        df_product_category_name_translation = pd.read_csv('data/product_category_name_translation.csv')
-        df_products = pd.read_csv('data/products_dataset.csv')
-        df_sellers = pd.read_csv('data/sellers_dataset.csv')
-        df_closed_deals = pd.read_csv('data/closed_deals_dataset.csv')
-        df_marketing_qualified_leads = pd.read_csv('data/marketing_qualified_leads_dataset.csv')
-
-        # ... (kode penggabungan data lainnya)
+        df_customers = pd.read_csv('data\customers_dataset.csv')
+        df_geolocation = pd.read_csv('data\geolocation_dataset.csv')
+        df_order_items = pd.read_csv('data\order_items_dataset.csv')
+        df_order_payments = pd.read_csv('data\order_payments_dataset.csv')
+        df_order_reviews = pd.read_csv('data\order_reviews_dataset.csv')
+        df_orders = pd.read_csv('data\orders_dataset.csv')
+        df_product_category_name_translation = pd.read_csv('data\product_category_name_translation.csv')
+        df_products = pd.read_csv('data\products_dataset.csv')
+        df_sellers = pd.read_csv('data\sellers_dataset.csv')
+        df_closed_deals = pd.read_csv('data\closed_deals_dataset.csv')
+        df_marketing_qualified_leads = pd.read_csv('data\marketing_qualified_leads_dataset.csv')
 
     except FileNotFoundError as e:
         st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
