@@ -72,11 +72,11 @@ def load_all_data():
         df_merged = pd.merge(df_merged, df_order_payments, on='order_id', how='left')
 
         # Gabungkan with marketing_qualified_leads (mql_id)
-        # df_merged = pd.merge(df_merged, df_marketing_qualified_leads, on='mql_id', how='left') # Tambahan - Removed due to KeyError
+        df_merged = pd.merge(df_merged, df_marketing_qualified_leads, on='mql_id', how='left') # Tambahan - Removed due to KeyError
 
         # Gabungkan with closed_deals (mql_id dan seller_id)
         # Perhatikan: closed_deals juga memiliki seller_id, jadi pastikan merge key-nya benar jika diperlukan
-        # df_merged = pd.merge(df_merged, df_closed_deals, on=['mql_id', 'seller_id'], how='left') # Tambahan (sesuaikan jika key berbeda) - Removed due to KeyError
+        df_merged = pd.merge(df_merged, df_closed_deals, on=['mql_id', 'seller_id'], how='left') # Tambahan (sesuaikan jika key berbeda) - Removed due to KeyError
 
 
         # Konversi kolom tanggal ke datetime
