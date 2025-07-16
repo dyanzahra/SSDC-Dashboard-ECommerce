@@ -7,14 +7,12 @@ Original file is located at
     https://colab.research.google.com/drive/100dzedB2rIIWNOgf8zLMb823_9xAo0GK
 """
 
-# Commented out IPython magic to ensure Python compatibility.
-# %pip install streamlit
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+import os
 
 # --- 1. Konfigurasi Halaman Streamlit ---
 st.set_page_config(
@@ -24,89 +22,117 @@ st.set_page_config(
 )
 
 # --- 2. Fungsi Memuat Data ---
-# Gunakan st.cache_data untuk caching data agar tidak dimuat ulang setiap interaksi
 @st.cache_data
 def load_all_data():
     try:
-        df_customers = pd.read_csv('data/customers_dataset.csv')
-        df_geolocation = pd.read_csv('data/geolocation_dataset.csv')
-        df_order_items = pd.read_csv('data/order_items_dataset.csv')
-        df_order_payments = pd.read_csv('data/order_payments_dataset.csv')
-        df_order_reviews = pd.read_csv('data/order_reviews_dataset.csv')
-        df_orders = pd.read_csv('data/orders_dataset.csv')
-        df_product_category_name_translation = pd.read_csv('data/product_category_name_translation.csv')
-        df_products = pd.read_csv('data/products_dataset.csv')
-        df_sellers = pd.read_csv('data/sellers_dataset.csv')
-        df_closed_deals = pd.read_csv('data/closed_deals_dataset.csv')
-        df_marketing_qualified_leads = pd.read_csv('data/marketing_qualified_leads_dataset.csv')
-
-        # ... (kode penggabungan data lainnya)
-
-    except FileNotFoundError as e:
-        st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
-        st.stop()
+        # Debugging: Tampilkan isi direktori
+        st.sidebar.write("Memuat data...")
         
-        # --- Gabungan Data Utama untuk Analisis (Berdasarkan ERD Anda) ---
-        # Mulai dengan tabel orders sebagai pusat
+        # Memuat semua dataset
+        data_files = {
+            'customers': 'data/customers_dataset.csv',
+            'geolocation': 'data/geolocation_dataset.csv',
+            'order_items': 'data/order_items_dataset.csv',
+            'order_payments': 'data/order_payments_dataset.csv',
+            'order_reviews': 'data/order_reviews_dataset.csv',
+            'orders': 'data/orders_dataset.csv',
+            'product_translation': 'data/product_category_name_translation.csv',
+            'products': 'data/products_dataset.csv',
+            'sellers': 'data/sellers_dataset.csv',
+            'closed_deals': 'data/closed_deals_dataset.csv',
+            'marketing_leads': 'data/marketing_qualified_leads_dataset.csv'
+        }
+        
+        # Load semua file CSV
+        loaded_data = {}
+        for name, path in data_files.items():
+            try:
+                loaded_data[name] = pd.read_csv(path)
+                st.sidebar.success(f"Berhasil memuat: {path}")
+            except Exception as e:
+                st.sidebar.error(f"Gagal memuat {path}: {str(e)}")
+                return None, None, None, None, None, None, None, None, None, None, None, None
+
+        # Assign ke variabel terpisah
+        df_customers = loaded_data['customers']
+        df_geolocation = loaded_data['geolocation']
+        df_order_items = loaded_data['order_items']
+        df_order_payments = loaded_data['order_payments']
+        df_order_reviews = loaded_data['order_reviews']
+        df_orders = loaded_data['orders']
+        df_product_category_name_translation = loaded_data['product_translation']
+        df_products = loaded_data['products']
+        df_sellers = loaded_data['sellers']
+        df_closed_deals = loaded_data['closed_deals']
+        df_marketing_qualified_leads = loaded_data['marketing_leads']
+
+        # --- Gabungan Data Utama ---
         df_merged = df_orders.copy()
+        
+        # Merge bertahap dengan pengecekan kolom
+        merge_steps = [
+            ('order_items', 'order_id'),
+            ('products', 'product_id'),
+            ('product_translation', 'product_category_name'),
+            ('order_reviews', 'order_id'),
+            ('customers', 'customer_id'),
+            ('sellers', 'seller_id'),
+            ('order_payments', 'order_id')
+        ]
+        
+        for df_name, on_key in merge_steps:
+            try:
+                df_merged = pd.merge(
+                    df_merged, 
+                    loaded_data[df_name], 
+                    on=on_key, 
+                    how='left'
+                )
+            except Exception as e:
+                st.error(f"Gagal menggabungkan {df_name} pada kolom {on_key}: {str(e)}")
+                continue
 
-        # Gabungkan dengan order_items (order_id)
-        df_merged = pd.merge(df_merged, df_order_items, on='order_id', how='left')
-
-        # Gabungkan dengan products (product_id)
-        df_merged = pd.merge(df_merged, df_products, on='product_id', how='left')
-
-        # Gabungkan dengan product_category_name_translation (product_category_name)
-        df_merged = pd.merge(df_merged, df_product_category_name_translation, on='product_category_name', how='left')
-
-        # Gabungkan with order_reviews (order_id)
-        df_merged = pd.merge(df_merged, df_order_reviews, on='order_id', how='left')
-
-        # Gabungkan with customers (customer_id)
-        df_merged = pd.merge(df_merged, df_customers, on='customer_id', how='left')
-
-        # Gabungkan with sellers (seller_id)
-        df_merged = pd.merge(df_merged, df_sellers, on='seller_id', how='left')
-
-        # Gabungkan with order_payments (order_id)
-        df_merged = pd.merge(df_merged, df_order_payments, on='order_id', how='left')
-
-        # Gabungkan with marketing_qualified_leads (mql_id)
-        df_merged = pd.merge(df_merged, df_marketing_qualified_leads, on='mql_id', how='left') # Tambahan - Removed due to KeyError
-
-        # Gabungkan with closed_deals (mql_id dan seller_id)
-        # Perhatikan: closed_deals juga memiliki seller_id, jadi pastikan merge key-nya benar jika diperlukan
-        df_merged = pd.merge(df_merged, df_closed_deals, on=['mql_id', 'seller_id'], how='left') # Tambahan (sesuaikan jika key berbeda) - Removed due to KeyError
-
-
-        # Konversi kolom tanggal ke datetime
-        date_cols = ['order_purchase_timestamp', 'order_approved_at',
-                     'order_delivered_carrier_date', 'order_delivered_customer_date',
-                     'order_estimated_delivery_date', 'shipping_limit_date',
-                     'review_creation_date', 'review_answer_timestamp'] # Removed 'first_contact_date', 'won_date' as they are not in df_merged
+        # Konversi kolom tanggal
+        date_cols = [
+            'order_purchase_timestamp', 'order_approved_at',
+            'order_delivered_carrier_date', 'order_delivered_customer_date',
+            'order_estimated_delivery_date', 'shipping_limit_date',
+            'review_creation_date', 'review_answer_timestamp'
+        ]
+        
         for col in date_cols:
             if col in df_merged.columns:
                 df_merged[col] = pd.to_datetime(df_merged[col], errors='coerce')
 
-        return df_merged, df_customers, df_geolocation, df_order_items, df_order_payments, \
-               df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
-               df_closed_deals, df_marketing_qualified_leads # Tambahkan ke return
+        return (
+            df_merged, df_customers, df_geolocation, df_order_items, 
+            df_order_payments, df_order_reviews, df_orders, 
+            df_product_category_name_translation, df_products, 
+            df_sellers, df_closed_deals, df_marketing_qualified_leads
+        )
 
-    except FileNotFoundError as e:
-        st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
-        # Removed st.stop()
-        return None # Explicitly return None on error
+    except Exception as e:
+        st.error(f"Error utama saat memuat data: {str(e)}")
+        return None, None, None, None, None, None, None, None, None, None, None, None
 
+# --- 3. Memuat Data ---
+st.sidebar.title("Status Aplikasi")
+debug_mode = st.sidebar.checkbox("Mode Debug")
 
-# Memuat semua data
-# df_main (1), df_customers (2), df_geolocation (3), df_order_items (4), df_order_payments (5), \
-# df_order_reviews (6), df_orders (7), df_product_category_name_translation (8), df_products (9), df_sellers (10), \
-# df_closed_deals (11), df_marketing_qualified_leads (12) = load_all_data() # Update variabel yang menerima return
+if debug_mode:
+    st.sidebar.write("### Debug Info")
+    st.sidebar.write("Direktori saat ini:", os.listdir('.'))
+    if os.path.exists('data'):
+        st.sidebar.write("Isi folder data:", os.listdir('data'))
+    else:
+        st.sidebar.error("Folder 'data' tidak ditemukan!")
 
-df_main, df_customers, df_geolocation, df_order_items, df_order_payments, \
-df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
-df_closed_deals, df_marketing_qualified_leads = load_all_data()
-
+(
+    df_main, df_customers, df_geolocation, df_order_items, 
+    df_order_payments, df_order_reviews, df_orders, 
+    df_product_category_name_translation, df_products, 
+    df_sellers, df_closed_deals, df_marketing_qualified_leads
+) = load_all_data()
 
 # --- 3. Pemrosesan Data Tambahan (Feature Engineering) ---
 if df_main is not None and not df_main.empty:
