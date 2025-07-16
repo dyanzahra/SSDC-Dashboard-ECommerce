@@ -99,9 +99,13 @@ def load_all_data():
 
 
 # Memuat semua data
+# df_main (1), df_customers (2), df_geolocation (3), df_order_items (4), df_order_payments (5), \
+# df_order_reviews (6), df_orders (7), df_product_category_name_translation (8), df_products (9), df_sellers (10), \
+# df_closed_deals (11), df_marketing_qualified_leads (12) = load_all_data() # Update variabel yang menerima return
+
 df_main, df_customers, df_geolocation, df_order_items, df_order_payments, \
 df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
-df_closed_deals, df_marketing_qualified_leads = load_all_data() # Update variabel yang menerima return
+df_closed_deals, df_marketing_qualified_leads = load_all_data()
 
 
 # --- 3. Pemrosesan Data Tambahan (Feature Engineering) ---
