@@ -83,19 +83,20 @@ def load_all_data():
         date_cols = ['order_purchase_timestamp', 'order_approved_at',
                      'order_delivered_carrier_date', 'order_delivered_customer_date',
                      'order_estimated_delivery_date', 'shipping_limit_date',
-                     'review_creation_date', 'review_answer_timestamp'] # Removed 'first_contact_date', 'won_date' as they are not in df_merged
+                     'review_creation_date', 'review_answer_timestamp',
+                     'first_contact_date', 'won_date'] # Removed 'first_contact_date', 'won_date' as they are not in df_merged
         for col in date_cols:
             if col in df_merged.columns:
                 df_merged[col] = pd.to_datetime(df_merged[col], errors='coerce')
 
         return df_merged, df_customers, df_geolocation, df_order_items, df_order_payments, \
                df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
-               df_closed_deals, df_marketing_qualified_leads # Tambahkan ke return
+               df_closed_deals, df_marketing_qualified_leads
 
     except FileNotFoundError as e:
         st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
-        # Removed st.stop()
-        return None # Explicitly return None on error
+        # Mengembalikan 12 None agar TypeError tidak terjadi di luar fungsi
+        return None, None, None, None, None, None, None, None, None, None, None, None
 
 
 # Memuat semua data
