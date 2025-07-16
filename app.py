@@ -28,6 +28,9 @@ st.set_page_config(
 @st.cache_data
 def load_all_data():
     try:
+        # Memuat setiap file CSV dari folder 'data'
+        # PASTIKAN NAMA FILE CSV SESUAI DENGAN YANG ADA DI FOLDER DATA ANDA!
+        # Jika ada file yang tidak ada, KOMENTARI BARISNYA atau sesuaikan nama file.
         df_customers = pd.read_csv('data/customers_dataset.csv')
         df_geolocation = pd.read_csv('data/geolocation_dataset.csv')
         df_order_items = pd.read_csv('data/order_items_dataset.csv')
@@ -40,12 +43,6 @@ def load_all_data():
         df_closed_deals = pd.read_csv('data/closed_deals_dataset.csv')
         df_marketing_qualified_leads = pd.read_csv('data/marketing_qualified_leads_dataset.csv')
 
-        # ... (kode penggabungan data lainnya)
-
-    except FileNotFoundError as e:
-        st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
-        st.stop()
-        
         # --- Gabungan Data Utama untuk Analisis (Berdasarkan ERD Anda) ---
         # Mulai dengan tabel orders sebagai pusat
         df_merged = df_orders.copy()
@@ -72,43 +69,41 @@ def load_all_data():
         df_merged = pd.merge(df_merged, df_order_payments, on='order_id', how='left')
 
         # Gabungkan with marketing_qualified_leads (mql_id)
-        df_merged = pd.merge(df_merged, df_marketing_qualified_leads, on='mql_id', how='left') # Tambahan - Removed due to KeyError
+        df_merged = pd.merge(df_merged, df_marketing_qualified_leads, on='mql_id', how='left')
 
         # Gabungkan with closed_deals (mql_id dan seller_id)
-        # Perhatikan: closed_deals juga memiliki seller_id, jadi pastikan merge key-nya benar jika diperlukan
-        df_merged = pd.merge(df_merged, df_closed_deals, on=['mql_id', 'seller_id'], how='left') # Tambahan (sesuaikan jika key berbeda) - Removed due to KeyError
+        df_merged = pd.merge(df_merged, df_closed_deals, on=['mql_id', 'seller_id'], how='left')
 
 
         # Konversi kolom tanggal ke datetime
         date_cols = ['order_purchase_timestamp', 'order_approved_at',
                      'order_delivered_carrier_date', 'order_delivered_customer_date',
                      'order_estimated_delivery_date', 'shipping_limit_date',
-                     'review_creation_date', 'review_answer_timestamp'] # Removed 'first_contact_date', 'won_date' as they are not in df_merged
+                     'review_creation_date', 'review_answer_timestamp',
+                     'first_contact_date', 'won_date'] # Tambahkan kembali kolom tanggal dari closed_deals & mql
         for col in date_cols:
             if col in df_merged.columns:
                 df_merged[col] = pd.to_datetime(df_merged[col], errors='coerce')
 
+        # Ini adalah return statement yang benar jika semua berhasil
         return df_merged, df_customers, df_geolocation, df_order_items, df_order_payments, \
                df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
-               df_closed_deals, df_marketing_qualified_leads # Tambahkan ke return
+               df_closed_deals, df_marketing_qualified_leads
 
     except FileNotFoundError as e:
         st.error(f"Error: File tidak ditemukan. Pastikan semua file CSV database ada di folder 'data/'. {e}")
-        # Removed st.stop()
-        return None # Explicitly return None on error
-
+        # Mengembalikan 12 None agar TypeError tidak terjadi di luar fungsi
+        return None, None, None, None, None, None, None, None, None, None, None, None
 
 # Memuat semua data
-# df_main (1), df_customers (2), df_geolocation (3), df_order_items (4), df_order_payments (5), \
-# df_order_reviews (6), df_orders (7), df_product_category_name_translation (8), df_products (9), df_sellers (10), \
-# df_closed_deals (11), df_marketing_qualified_leads (12) = load_all_data() # Update variabel yang menerima return
-
+# Baris 106 yang Anda maksud
 df_main, df_customers, df_geolocation, df_order_items, df_order_payments, \
 df_order_reviews, df_orders, df_product_category_name_translation, df_products, df_sellers, \
 df_closed_deals, df_marketing_qualified_leads = load_all_data()
 
 
 # --- 3. Pemrosesan Data Tambahan (Feature Engineering) ---
+# Tambahkan pengecekan if df_main is not None sebelum memproses data
 if df_main is not None and not df_main.empty:
     # Durasi pengiriman aktual
     df_main['delivery_duration_days'] = (df_main['order_delivered_customer_date'] - df_main['order_purchase_timestamp']).dt.days
@@ -117,6 +112,7 @@ if df_main is not None and not df_main.empty:
 
 
 # --- 4. Sidebar untuk Filter dan Navigasi ---
+# Tambahkan pengecekan if df_main is not None sebelum menampilkan sidebar dan konten utama
 if df_main is not None and not df_main.empty:
     st.sidebar.title("Kontrol Dasbor ⚙️")
     st.sidebar.header("Filter Data")
@@ -212,7 +208,7 @@ if df_main is not None and not df_main.empty:
                 fig_state = px.bar(customer_state_dist, x='count', y='customer_state',
                                    labels={'count': 'Jumlah Pelanggan', 'customer_state': 'Provinsi'},
                                    title='Top 10 Provinsi dengan Pelanggan Terbanyak',
-                                   orientation='h', color='count', color_continuous_scale=px.colors.sequential.Plasma) # Changed color scale to 'Plasma'
+                                   orientation='h', color='count', color_continuous_scale=px.colors.sequential.Crest)
                 fig_state.update_layout(yaxis={'categoryorder':'total ascending'})
                 st.plotly_chart(fig_state, use_container_width=True)
             else:
@@ -242,9 +238,9 @@ if df_main is not None and not df_main.empty:
                 review_score_counts = df_filtered['review_score'].value_counts().sort_index().reset_index()
                 review_score_counts.columns = ['review_score', 'count']
                 fig_review = px.bar(review_score_counts, x='review_score', y='count',
-                                     labels={'review_score': 'Skor Ulasan', 'count': 'Jumlah Ulasan'},
-                                     title='Distribusi Skor Ulasan',
-                                     color='review_score', color_continuous_scale=px.colors.sequential.Plasma)
+                                    labels={'review_score': 'Skor Ulasan', 'count': 'Jumlah Ulasan'},
+                                    title='Distribusi Skor Ulasan',
+                                    color='review_score', color_continuous_scale=px.colors.sequential.Plasma)
                 st.plotly_chart(fig_review, use_container_width=True)
             else:
                 st.info("Data skor ulasan tidak tersedia for this visualization.")
