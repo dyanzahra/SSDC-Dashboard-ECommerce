@@ -16,7 +16,7 @@ import os
 
 # --- 1. Konfigurasi Halaman Streamlit ---
 st.set_page_config(
-    page_title="Dasbor E-commerce SSDC 2025",
+    page_title="Dashboard E-Commerce SSDC 2025",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -24,10 +24,7 @@ st.set_page_config(
 # --- 2. Fungsi Memuat Data ---
 @st.cache_data
 def load_all_data():
-    try:
-        # Debugging: Tampilkan isi direktori
-        st.sidebar.write("Memuat data...")
-        
+    try:        
         # Memuat semua dataset
         data_files = {
             'customers': 'data/customers_dataset.csv',
@@ -48,9 +45,7 @@ def load_all_data():
         for name, path in data_files.items():
             try:
                 loaded_data[name] = pd.read_csv(path)
-                st.sidebar.success(f"Berhasil memuat: {path}")
             except Exception as e:
-                st.sidebar.error(f"Gagal memuat {path}: {str(e)}")
                 return None, None, None, None, None, None, None, None, None, None, None, None
 
         # Assign ke variabel terpisah
@@ -116,17 +111,6 @@ def load_all_data():
         return None, None, None, None, None, None, None, None, None, None, None, None
 
 # --- 3. Memuat Data ---
-st.sidebar.title("Status Aplikasi")
-debug_mode = st.sidebar.checkbox("Mode Debug")
-
-if debug_mode:
-    st.sidebar.write("### Debug Info")
-    st.sidebar.write("Direktori saat ini:", os.listdir('.'))
-    if os.path.exists('data'):
-        st.sidebar.write("Isi folder data:", os.listdir('data'))
-    else:
-        st.sidebar.error("Folder 'data' tidak ditemukan!")
-
 (
     df_main, df_customers, df_geolocation, df_order_items, 
     df_order_payments, df_order_reviews, df_orders, 
@@ -186,7 +170,7 @@ if df_main is not None and not df_main.empty:
 
 
     # --- 5. Judul dan Ringkasan Metrik Utama ---
-    st.title("📊 Dasbor E-commerce Sebelas Maret Statistics Fair 2025")
+    st.title("📊 E-Commerce Business Insight - SSDC 2025")
     st.write("Analisis preferensi pembeli, kualitas produk, dan kinerja pengiriman untuk strategi bisnis yang lebih baik.")
 
     if df_filtered.empty:
