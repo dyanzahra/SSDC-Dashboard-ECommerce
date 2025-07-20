@@ -139,6 +139,7 @@ if df_main is not None:
             "🚀 Rekomendasi Strategis"
         ])
 
+        # --- TAB 1: KUALITAS & PERFORMA PRODUK ---
         with tab1:
             st.subheader("Menganalisis Produk Mana yang Berhasil dan Mana yang Perlu Perbaikan")
             
