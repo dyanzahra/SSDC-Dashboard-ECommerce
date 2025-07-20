@@ -8,19 +8,18 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-# --- 1. Konfigurasi Halaman Streamlit ---
+# --- 1. Page Configuration ---
 st.set_page_config(
     page_title="Dashboard E-Commerce SSDC 2025",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- 2. Fungsi Memuat Data ---
-# Menggunakan st.cache_data untuk efisiensi, data hanya dimuat sekali.
+# --- 2. Data Loading Function ---
 @st.cache_data
 def load_all_data():
     try:        
-       # Memuat semua dataset
+        # Memuat semua dataset
         data_files = {
             'customers': 'data/customers_dataset.csv',
             'geolocation': 'data/geolocation_dataset.csv',
@@ -56,7 +55,7 @@ def load_all_data():
         
         df_merged = df_merged.drop_duplicates(subset=['order_id', 'order_item_id', 'review_id'])
 
-        # Konversi Tipe Data & Feature Engineering
+        # Convert date columns
         date_cols = [
             'order_purchase_timestamp', 'order_approved_at',
             'order_delivered_carrier_date', 'order_delivered_customer_date',
@@ -79,7 +78,7 @@ def load_all_data():
         st.error(f"Terjadi error saat memuat atau memproses data: {str(e)}")
         return None, None
 
-# --- 3. Memuat dan Memfilter Data ---
+# --- 3. Load and Filter Data ---
 df_main, df_geolocation = load_all_data()
 
 if df_main is not None:
@@ -133,7 +132,7 @@ if df_main is not None:
         col4.metric("Rata-rata Waktu Pengiriman", f"{df_filtered['delivery_duration_days'].mean():.1f} Hari")
         st.markdown("---")
 
-        # Struktur Tab Utama
+        # Main Tabs
         tab1, tab2, tab3 = st.tabs([
             "⭐ Kualitas & Performa Produk",
             "🚚 Logistik & Jangkauan Pasar",
@@ -144,13 +143,11 @@ if df_main is not None:
         with tab1:
             st.subheader("Menganalisis Produk Mana yang Berhasil dan Mana yang Perlu Perbaikan")
             
-             # Dropdown untuk memilih jenis analisis produk: penjualan atau ulasan
             analysis_choice = st.selectbox(
                 "Pilih Jenis Analisis Produk:",
                 ("Performa Penjualan Produk", "Analisis Ulasan Pelanggan")
             )
 
-            # Jika memilih analisis performa penjualan
             if analysis_choice == "Performa Penjualan Produk":
                 st.markdown("##### Top 10 Kategori Produk Berdasarkan Total Penjualan")
                 top_categories = df_filtered.groupby('product_category_name_english')['price'].sum().nlargest(10).reset_index()
@@ -160,17 +157,16 @@ if df_main is not None:
                 fig.update_layout(yaxis={'categoryorder':'total ascending'})
                 st.plotly_chart(fig, use_container_width=True)
                 st.markdown("""
-                *Insight:*
+                Insight:
                 - Kategori tertentu mendominasi penjualan.
                 - Deskripsi yang lebih panjang berpotensi menaikkan kepuasan.
 
-                *Rekomendasi:*
+                Rekomendasi:
                 - Fokus promosi pada kategori top.
                 - Perbaiki deskripsi dan foto produk.
                 - Kurasi ulang kategori berat ekstrem.
                 """)
 
-            # Jika memilih analisis ulasan pelanggan
             elif analysis_choice == "Analisis Ulasan Pelanggan":
                 st.markdown("##### Distribusi Skor Ulasan Produk")
                 st.write("Mayoritas pelanggan memberikan ulasan positif (skor 4 dan 5), namun ulasan negatif (skor 1 dan 2) perlu menjadi perhatian khusus.")
@@ -212,17 +208,17 @@ if df_main is not None:
                         neg_percent = (neg_count / total) * 100
                         
                         st.markdown(f"""
-                        - **Total Ulasan:** {total}
-                        - **Ulasan Negatif (1-2 bintang):** {neg_count} ({neg_percent:.1f}%)
+                        - *Total Ulasan:* {total}
+                        - *Ulasan Negatif (1-2 bintang):* {neg_count} ({neg_percent:.1f}%)
                         """)
                         
                         # Show sample reviews
                         samples = neg_reviews[['review_score', 'review_comment_message']].dropna().sample(min(3, len(neg_reviews)))
                         if not samples.empty:
-                            st.markdown("**Contoh Ulasan Negatif:**")
+                            st.markdown("*Contoh Ulasan Negatif:*")
                             for _, review in samples.iterrows():
                                 st.markdown(f"""
-                                - **{review['review_score']}/5:** {review['review_comment_message']}
+                                - *{review['review_score']}/5:* {review['review_comment_message']}
                                 """)
                         else:
                             st.info("Tidak ada ulasan teks untuk kategori ini")
@@ -235,13 +231,11 @@ if df_main is not None:
         with tab2:
             st.subheader("Mengevaluasi Efisiensi Pengiriman dan Persebaran Pelanggan")
 
-            # Dropdown untuk memilih jenis analisis logistik
             analysis_choice_logistics = st.selectbox(
                 "Pilih Jenis Analisis Logistik:",
                 ("Analisis Kinerja Pengiriman", "Distribusi Geografis Pelanggan")
             )
 
-            # --- Bagian 1: Analisis Kinerja Pengiriman ---
             if analysis_choice_logistics == "Analisis Kinerja Pengiriman":
                 st.markdown("##### Distribusi Durasi Pengiriman Aktual (Hari)")
                 st.write("Memahami berapa lama waktu yang dibutuhkan dari pesanan dibuat hingga sampai ke tangan pelanggan.")
@@ -257,7 +251,6 @@ if df_main is not None:
                 fig_delivery_perf.update_layout(title="Histogram Performa Pengiriman Terhadap Estimasi")
                 st.plotly_chart(fig_delivery_perf, use_container_width=True)
             
-            # --- Bagian 2: Distribusi Geografis Pelanggan ---
             elif analysis_choice_logistics == "Distribusi Geografis Pelanggan":
                 st.markdown("##### Peta Persebaran Pelanggan")
                 st.write("Visualisasi lokasi pelanggan untuk mengidentifikasi pasar utama dan potensi area ekspansi.")
