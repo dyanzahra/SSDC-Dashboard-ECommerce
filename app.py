@@ -18,7 +18,8 @@ st.set_page_config(
 # --- 2. Data Loading Function ---
 @st.cache_data
 def load_all_data():
-    try:
+    try:        
+        # Memuat semua dataset
         data_files = {
             'customers': 'data/customers_dataset.csv',
             'geolocation': 'data/geolocation_dataset.csv',
@@ -29,6 +30,8 @@ def load_all_data():
             'product_translation': 'data/product_category_name_translation.csv',
             'products': 'data/products_dataset.csv',
             'sellers': 'data/sellers_dataset.csv',
+            'closed_deals': 'data/closed_deals_dataset.csv',
+            'marketing_leads': 'data/marketing_qualified_leads_dataset.csv'
         }
 
         loaded_data = {}
