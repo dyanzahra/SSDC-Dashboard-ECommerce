@@ -20,7 +20,7 @@ st.set_page_config(
 @st.cache_data
 def load_all_data():
     try:        
-        # Memuat semua dataset
+       # Memuat semua dataset
         data_files = {
             'customers': 'data/customers_dataset.csv',
             'geolocation': 'data/geolocation_dataset.csv',
