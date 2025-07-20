@@ -330,8 +330,4 @@ if df_main is not None:
 # Pesan jika data gagal dimuat di awal
 else:
     st.title("📊 E-Commerce Business Insight - SSDC 2025")
-<<<<<<< HEAD
     st.error("Gagal memuat data. Mohon periksa kembali file CSV Anda dan pastikan berada di dalam folder 'data/'.")
-=======
-    st.error("Gagal memuat data. Mohon periksa kembali file CSV Anda dan pastikan berada di dalam folder 'data/'.")
->>>>>>> 03c2bf48c570eae1efd1b5508e3cfc0c12004cae
