@@ -18,8 +18,7 @@ st.set_page_config(
 # --- 2. Data Loading Function ---
 @st.cache_data
 def load_all_data():
-    try:        
-        # Memuat semua dataset
+    try:
         data_files = {
             'customers': 'data/customers_dataset.csv',
             'geolocation': 'data/geolocation_dataset.csv',
@@ -30,30 +29,11 @@ def load_all_data():
             'product_translation': 'data/product_category_name_translation.csv',
             'products': 'data/products_dataset.csv',
             'sellers': 'data/sellers_dataset.csv',
-            'closed_deals': 'data/closed_deals_dataset.csv',
-            'marketing_leads': 'data/marketing_qualified_leads_dataset.csv'
         }
 
-       # Load semua file CSV
         loaded_data = {}
         for name, path in data_files.items():
-            try:
-                loaded_data[name] = pd.read_csv(path)
-            except Exception as e:
-                return None, None, None, None, None, None, None, None, None, None, None, None
-
-         # Assign ke variabel terpisah
-        df_customers = loaded_data['customers']
-        df_geolocation = loaded_data['geolocation']
-        df_order_items = loaded_data['order_items']
-        df_order_payments = loaded_data['order_payments']
-        df_order_reviews = loaded_data['order_reviews']
-        df_orders = loaded_data['orders']
-        df_product_category_name_translation = loaded_data['product_translation']
-        df_products = loaded_data['products']
-        df_sellers = loaded_data['sellers']
-        df_closed_deals = loaded_data['closed_deals']
-        df_marketing_qualified_leads = loaded_data['marketing_leads']
+            loaded_data[name] = pd.read_csv(path)
 
         # Merge datasets
         df_merged = loaded_data['orders'].copy()
@@ -350,4 +330,8 @@ if df_main is not None:
 # Pesan jika data gagal dimuat di awal
 else:
     st.title("📊 E-Commerce Business Insight - SSDC 2025")
+<<<<<<< HEAD
     st.error("Gagal memuat data. Mohon periksa kembali file CSV Anda dan pastikan berada di dalam folder 'data/'.")
+=======
+    st.error("Gagal memuat data. Mohon periksa kembali file CSV Anda dan pastikan berada di dalam folder 'data/'.")
+>>>>>>> 03c2bf48c570eae1efd1b5508e3cfc0c12004cae
